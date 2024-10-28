@@ -7,10 +7,11 @@ import java.net.Socket;
 public class Main {
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(3000);
-
+        Username user = new Username();
+        System.out.println("Server partito");
         while(true){
             Socket socket = serverSocket.accept();
-            GestoreServer gs = new GestoreServer();
+            GestoreServer gs = new GestoreServer(socket , user);
             gs.start();
         }
     }
