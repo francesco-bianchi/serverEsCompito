@@ -9,10 +9,12 @@ import java.util.ArrayList;
 
 public class GestoreServer extends Thread{
     Socket socket;
-    Username user;
-    public GestoreServer(Socket socket, Username user) {
+    ArrayList user;
+    ArrayList <String> arrCond;
+    public GestoreServer(Socket socket, ArrayList <String> user, ArrayList <String> arrCond) {
         this.socket = socket;
         this.user = user;
+        this.arrCond = arrCond;
     }
 
     public void run(){
@@ -27,12 +29,15 @@ public class GestoreServer extends Thread{
             ArrayList arrNote = new ArrayList<String>();
 
             do {
+                presente = false;
                 username = in.readLine();
-                presente = user.addUsername(username);
-                if(presente){
+                
+                if(user.contains(username)){
                     out.writeBytes("n" + "\n");
+                    presente = true;
                 }
                 else{
+                    user.add(username);
                     out.writeBytes("s" +"\n");
                 }
                 
@@ -47,7 +52,7 @@ public class GestoreServer extends Thread{
                 }
                 else if(fraseRic.equals("?")){
                     if(arrNote.isEmpty()){
-                        out.writeBytes("Non sono state inserite note" + "\n");
+                        out.writeBytes("@" + "\n");
                     }
                     else{
                         for(int i=0; i<arrNote.size(); i++){
@@ -56,9 +61,20 @@ public class GestoreServer extends Thread{
                         out.writeBytes("@" + "\n");
                     }
                 }
-                else if(fraseRic.equals("$")){
+                else if(fraseRic.equals("&")){
+                    if(arrCond.isEmpty()){
+                        out.writeBytes("@" + "\n");
+                    }
+                    else{
+                        for(int i=0; i<arrCond.size(); i++){
+                            out.writeBytes(arrCond.get(i) + "\n");
+                        }
+                        out.writeBytes("@" + "\n");
+                    }
+                }
+                else if(fraseRic.equals("$")){ //cancella
                     if(arrNote.isEmpty()){
-                        out.writeBytes("Non sono state inserite note" + "\n");
+                        out.writeBytes("@" + "\n");
                     }
                     else{
                         for(int i=0; i<arrNote.size(); i++){
@@ -73,16 +89,21 @@ public class GestoreServer extends Thread{
                                 pos = i;
                             }
                         }
-                        if(!trovatoCanc){
-                            out.writeBytes("n" + "\n");
-                        }
-                        else{
+                        if(trovatoCanc){
                             arrNote.remove(pos);
                             out.writeBytes("s" + "\n");
                         }
+                        else{
+                            out.writeBytes("n" + "\n");
+                        }
+                        
 
 
                     }
+                }
+                else if(fraseRic.charAt(0) == '&'){
+                    arrCond.add(username + ": " +fraseRic);
+                    out.writeBytes("OK" + "\n");
                 }
                 else{
                     arrNote.add(fraseRic);
